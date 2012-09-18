@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+#
+#  demoappl  -- Just test the Application class
+#
+
+require "appl"
+
+class DemoAppl < Application
+
+  NAME      = "demoappl"
+  VERSION   = "1.0"
+  SUMMARY   = "Just test the Application class"
+  COPYRIGHT = "(C) 2011 Bertram Scharpf"
+  LICENSE   = "For internal use only"
+  AUTHOR    = "Bertram Scharpf <b.scharpf@rvr.de>"
+
+  DESCRIPTION = <<EOT
+This is an example how to define an Application subclass.
+The program just prints out its parameters.
+
+EOT
+
+  attr_writer :param, :default_param
+  attr_bang :switch, :debug
+
+  define_option "s", :switch!,                                "dummy switch"
+  alias_option  "s", "switch"
+
+  define_option "p", :param=, "PARAM",                     "dummy parameter"
+  alias_option  "p", "param"
+
+  define_option "d", :default_param=, "PARAM:dddd",
+                                        "dummy parameter with default value"
+  alias_option  "d", "default-param"
+
+  define_option "g", :debug!,           "lots of ugly debugging information"
+  alias_option  "g", "debug"
+
+  define_option "h", :help,                         "show this options list"
+  alias_option  "h", "help"
+  define_option "V", :version,                    "show version information"
+  alias_option  "V", "version"
+
+  UNKNOWN = "Sorry, unknown option"
+  STOPOPT = "no more options"
+
+  def run
+    puts inspect
+    @args.clear
+  end
+
+end
+
+if false then
+  exit DemoAppl.run %w(-s -p rrrr qqqq -x -y -z)
+else
+  exit DemoAppl.run
+end
+

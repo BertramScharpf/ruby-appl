@@ -1,0 +1,13 @@
+#
+#  .gitignore  --  Diese Dateien nicht einchecken
+#
+
+.sw[ponm]
+.*.sw[ponm]
+
+.configure
+*.o
+*.so
+
+*.gem
+

@@ -44,6 +44,7 @@ EOT
 
   UNKNOWN = "Sorry, unknown option"
   STOPOPT = "no more options"
+  UNPROCA = "Warning: unprocessed arguments left"
 
   def run
     puts inspect

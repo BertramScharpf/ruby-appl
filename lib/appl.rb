@@ -29,7 +29,7 @@ class Application
         act = self.class.option_act @args, $', nil
         send *act
       else
-        while opt.any? do
+        until opt.empty? do
           c = opt.slice! 0, 1
           act = self.class.option_act @args, c, opt
           send *act
@@ -201,7 +201,7 @@ This base class does nothing by default.
       desc, arg, dfl, act = *dada
       r = [ act]
       if arg then
-        p = rest.slice! 0, rest.length if rest and rest.any?
+        p = rest.slice! 0, rest.length if rest and not rest.empty?
         r.push p||args.shift
       end
       r

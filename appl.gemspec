@@ -16,14 +16,16 @@ EOT
   s.homepage          = "http://www.bertram-scharpf.de"
 
   s.requirements      = "Just Ruby"
-# s.add_dependency      "somegem", ">=0.1"
+  s.add_dependency      "step", ">=1.5"
 
-  s.extensions        = nil
+  s.extensions        = %w()
   s.files             = %w(
                           lib/appl.rb
+                          lib/intar.rb
                           doc/demoappl
                         )
   s.executables       = %w(
+                          intar
                         )
 
   s.has_rdoc          = true

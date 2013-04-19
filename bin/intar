@@ -89,6 +89,9 @@ EOT
                           "pass lines starting with blanks to history"
   alias_option  "A", "histall"
 
+  define_option "E", :encoding=, "ENC",  "set encoding (like ruby -E)"
+  alias_option  "E", "encoding"
+
   define_option "x", :catch_exit!,
                                     "Show exit exception, don't leave"
   alias_option  "x", "catchexit"
@@ -109,6 +112,16 @@ EOT
   end
 
   private
+
+  def encoding= ei
+    e, i = ei.split ":"
+    Encoding.default_external = e if e and not e.empty?
+    Encoding.default_internal = i if i and not i.empty?
+    [ $stdin, $stdout, $stderr].each do |io|
+      io.set_encoding e, i
+    end
+  end
+
 
   def read_cfg
     c = @configfile

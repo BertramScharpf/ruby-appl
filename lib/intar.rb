@@ -227,7 +227,7 @@ class Intar
       _ = r
       Array === __ or __ = []
       Hash === ___ or ___ = {}
-      __.delete _ rescue nil
+      __.delete _
       ___.delete n
       unless _.nil? or _.equal? __ or _.equal? ___ then
         __.unshift _
@@ -303,11 +303,11 @@ class Intar
         retry
       end
       if r then
-        break if not l
+        break if l.nil?
         r << $/ << l
         break if l.empty?
       else
-        return if not l
+        return if l.nil?
         next unless l =~ /\S/
         r = l
         break unless l =~ /\\+\z/ and $&.length % 2 != 0

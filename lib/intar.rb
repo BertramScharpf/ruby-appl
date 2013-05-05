@@ -224,14 +224,13 @@ class Intar
   OLDSET = <<-EOT
     _, __, ___ = nil, nil, nil
     proc { |r,n|
-      _ = r
       Array === __ or __ = []
       Hash === ___ or ___ = {}
-      __.delete _
-      ___.delete n
-      unless _.nil? or _.equal? __ or _.equal? ___ then
-        __.unshift _
-        ___[ n] = _
+      unless r.nil? or r.equal? __ or r.equal? ___ then
+        _ = r
+        __.delete r
+        __.unshift r
+        ___[ n] = r
       end
     }
   EOT

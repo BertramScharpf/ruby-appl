@@ -84,13 +84,8 @@ This base class does nothing by default.
   class <<self
 
     def run args = nil
-      i = new args
-      i.execute
-    rescue Done
-      0
-    rescue OptionError
-      show_message $!
-      127
+      e = execute args
+      exit e
     end
 
     def version
@@ -102,6 +97,16 @@ This base class does nothing by default.
     end
 
     private
+
+    def execute args = nil
+      i = new args
+      i.execute
+    rescue Done
+      0
+    rescue OptionError
+      show_message $!
+      127
+    end
 
     def inherited sub
       sub.instance_eval { @options, @aliases = {}, {} }

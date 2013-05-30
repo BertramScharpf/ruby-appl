@@ -41,7 +41,7 @@ EOT
     Intar.colour = false
   end
   def catch_exit!
-    Intar.catch_exit = @catch_exit
+    Intar.catch_exit = (Intar.catch_exit||0) + 3
   end
   def histall!
     Intar.histhid = false
@@ -93,7 +93,7 @@ EOT
   alias_option  "E", "encoding"
 
   define_option "x", :catch_exit!,
-                                    "Show exit exception, don't leave"
+                     "On exit exception: Wait 3 seconds for interrupt"
   alias_option  "x", "catchexit"
   alias_option  "x", "catch-exit"
 

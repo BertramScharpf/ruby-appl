@@ -212,7 +212,7 @@ class Intar
   self.histhid    = true
   self.sh_pref    = "."
   self.pi_suff    = " |"
-  self.catch_exit = true
+  self.catch_exit = nil
 
   private
 
@@ -398,8 +398,9 @@ class Intar
           @previous = l
         end
       rescue SystemExit
-        self.class.catch_exit or wait_exit and break
+        break if wait_exit
         oldset.call $!, @n
+        show_exception
       rescue Exception
         oldset.call $!, @n
         show_exception
@@ -420,7 +421,8 @@ class Intar
   private
 
   def wait_exit
-    3.times { print "." ; $stdout.flush ; sleep 1 }
+    c = self.class.catch_exit
+    c and c.times { print "." ; $stdout.flush ; sleep 1 }
     true
   rescue Interrupt
     puts

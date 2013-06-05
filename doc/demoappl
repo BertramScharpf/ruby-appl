@@ -13,7 +13,7 @@ class DemoAppl < Application
   SUMMARY   = "Just test the Application class"
   COPYRIGHT = "(C) 2011 Bertram Scharpf"
   LICENSE   = "For internal use only"
-  AUTHOR    = "Bertram Scharpf <b.scharpf@rvr.de>"
+  AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 
   DESCRIPTION = <<EOT
 This is an example how to define an Application subclass.

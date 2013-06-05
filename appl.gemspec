@@ -16,7 +16,7 @@ EOT
   s.homepage          = "http://www.bertram-scharpf.de"
 
   s.requirements      = "Just Ruby"
-  s.add_dependency      "step", ">=1.5"
+  s.add_dependency      "step", ">=1.6"
 
   s.extensions        = %w()
   s.files             = %w(

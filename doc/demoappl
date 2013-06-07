@@ -22,7 +22,7 @@ The program just prints out its parameters.
 EOT
 
   attr_writer :param, :default_param
-  attr_bang :switch, :debug
+  attr_bang :switch, :raise, :debug
 
   define_option "s", :switch!,                                "dummy switch"
   alias_option  "s", "switch"
@@ -33,6 +33,9 @@ EOT
   define_option "d", :default_param=, "PARAM:dddd",
                                         "dummy parameter with default value"
   alias_option  "d", "default-param"
+
+  define_option "r", :raise!,                           "raise an exception"
+  alias_option  "r", "raise"
 
   define_option "g", :debug!,           "lots of ugly debugging information"
   alias_option  "g", "debug"
@@ -48,14 +51,15 @@ EOT
 
   def run
     puts inspect
+    raise "stop" if @raise
     @args.clear
   end
 
 end
 
 if false then
-  exit DemoAppl.run %w(-s -p rrrr qqqq -x -y -z)
+  DemoAppl.run %w(-s -p rrrr qqqq -x -y -z)
 else
-  exit DemoAppl.run
+  DemoAppl.run
 end
 

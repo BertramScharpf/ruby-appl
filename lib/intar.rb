@@ -329,7 +329,7 @@ class Intar
     show = (self.class.show or return)
     i = r.inspect
     if show > 0 then
-      _, siz, = $stdout.winsize
+      siz, = $stdout.winsize
       siz *= show
       siz -= ARROW.length
       if i.length > siz then

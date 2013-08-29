@@ -242,16 +242,17 @@ This base class does nothing by default.
 
     def show_version
       puts version
-      puts COPYRIGHT if const_defined? :COPYRIGHT
-      puts LICENSE   if const_defined? :LICENSE
+      puts self::COPYRIGHT if const_defined? :COPYRIGHT
+      puts "License: #{self::LICENSE}" if const_defined? :LICENSE
       a = []
-      a.push   AUTHOR  if const_defined? :AUTHOR
-      a.concat AUTHORS if const_defined? :AUTHORS
-      a.flatten!
+      a.push   self::AUTHOR  if const_defined? :AUTHOR
+      a.concat self::AUTHORS if const_defined? :AUTHORS
       if a.any? then
+        a.flatten!
         a.uniq!
         j = a.join ", "
-        puts j
+        h = a.length == 1 ? "Author" : "Authors"
+        puts "#{h}: #{j}"
       end
     end
 

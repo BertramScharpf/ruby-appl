@@ -13,7 +13,7 @@ class IntarApp < Application
   NAME      = "intar"
   VERSION   = "1.0"
   SUMMARY   = "Interactive Ruby"
-  COPYRIGHT = "(C) 2008-2012 Bertram Scharpf <software@bertram-scharpf.de>"
+  COPYRIGHT = "(C) 2008-2013 Bertram Scharpf <software@bertram-scharpf.de>"
   LICENSE   = "BSD"
   AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 

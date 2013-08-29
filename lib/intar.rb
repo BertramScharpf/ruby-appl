@@ -42,8 +42,8 @@ everywhere inside your Ruby program.
 
 
 require "readline"
-require "step"
-require "step/terminal"
+require "supplement"
+require "supplement/terminal"
 
 
 class Object

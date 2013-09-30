@@ -235,6 +235,9 @@ class Intar
     }
   EOT
 
+  autoload :Etc,    "etc"
+  autoload :Socket, "socket"
+
   def cur_prompt
     t = Time.now
     self.class.prompt.gsub /%(?:
@@ -247,8 +250,8 @@ class Intar
         when "i" then $1.notempty? ? (@obj.send $1) : @obj.inspect
         when "n" then "%#$2d" % @n
         when "t" then t.strftime $1||"%X"
-        when "u" then etc.getpwuid.name
-        when "h" then socket.gethostname
+        when "u" then Etc.getpwuid.name
+        when "h" then Socket.gethostname
         when "w" then cwd_short
         when "W" then File.basename cwd_short
         when "c" then (colour *($1 || $2 || "").split.map { |x| x.to_i }).to_s
@@ -273,21 +276,9 @@ class Intar
 
   def cwd_short
     r = Dir.pwd
-    h = etc.getpwuid.dir
+    h = Etc.getpwuid.dir
     r[ 0, h.length] == h and r[ 0, h.length] = "~"
     r
-  end
-
-  def etc
-    Etc
-  rescue NameError
-    require "etc" and retry
-  end
-
-  def socket
-    Socket
-  rescue NameError
-    require "socket" and retry
   end
 
   def readline

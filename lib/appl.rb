@@ -5,6 +5,8 @@
 
 class Application
 
+  APPL_VERSION = "1.0".freeze
+
   STOPOPT = "stop option processing"
   UNKNOWN = "Unknown option"
   UNPROCA = "Warning: unprocessed arguments"

@@ -11,7 +11,7 @@ require "appl"
 class IntarApp < Application
 
   NAME      = "intar"
-  VERSION   = "1.0"
+  VERSION   = APPL_VERSION
   SUMMARY   = "Interactive Ruby"
   COPYRIGHT = "(C) 2008-2013 Bertram Scharpf <software@bertram-scharpf.de>"
   LICENSE   = "BSD"

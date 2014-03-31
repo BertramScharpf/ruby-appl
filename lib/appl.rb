@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.0".freeze
+  APPL_VERSION = "1.0.1".freeze
 
   STOPOPT = "stop option processing"
   UNKNOWN = "Unknown option"

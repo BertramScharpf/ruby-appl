@@ -228,7 +228,7 @@ class Intar
       Hash === ___ or ___ = {}
       unless r.nil? or r.equal? __ or r.equal? ___ then
         _ = r
-        __.delete r
+        __.delete r rescue nil
         __.unshift r
         ___[ n] = r
       end

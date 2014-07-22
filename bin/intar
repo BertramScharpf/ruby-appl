@@ -47,15 +47,13 @@ EOT
     Intar.histhid = false
   end
   def histfile= h
-    is_none? h do h = nil end
-    Intar.histfile = h
+    Intar.histfile = nil_if_none h
   end
   def histmax= m
     Intar.histmax = (Integer m rescue m.to_i)
   end
   def configfile= c
-    is_none? c do c = nil end
-    @configfile = c
+    @configfile = nil_if_none c
   end
 
   define_option "p", :prompt=, "STR",
@@ -145,8 +143,11 @@ EOT
     }.value
   end
 
-  def is_none? var
-    yield if [ "", "NONE"].include? var
+  def nil_if_none var
+    case var
+      when "", "NONE" then nil
+      else                 var
+    end
   end
 
 end

@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.0.1".freeze
+  APPL_VERSION = "1.0.2".freeze
 
   STOPOPT = "stop option processing"
   UNKNOWN = "Unknown option"
@@ -28,7 +28,9 @@ class Application
       @args.shift
       if opt =~ /\A-/ then
         break if $'.empty?
-        act = self.class.option_act @args, $', nil
+        opt = $'
+        if opt =~ /=/ then opt = $` ; @args.unshift $' end
+        act = self.class.option_act @args, opt, nil
         send *act
       else
         until opt.empty? do
@@ -44,10 +46,13 @@ class Application
     c = self.class
     puts c.version
     puts
-    c.show_options
-    puts
-    yield if block_given?
     puts c::DESCRIPTION
+    puts
+    c.show_options
+    if block_given? then
+      puts
+      yield
+    end
     raise Done
   end
 

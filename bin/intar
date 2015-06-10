@@ -129,7 +129,7 @@ EOT
       return unless File.exists? c
     end
     r = File.read c
-    r.insert 0, "$SAFE = 1#$/"
+    r.prepend "$SAFE = 1#$/"
     Thread.new {
       begin
         eval r, TOPLEVEL_BINDING

@@ -328,7 +328,8 @@ class Intar
         i << ELLIPSIS
       end
     end
-    puts ARROW + i
+    i.prepend ARROW
+    puts i
   end
 
   def pager doit

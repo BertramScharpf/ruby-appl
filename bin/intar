@@ -55,6 +55,7 @@ EOT
   def configfile= c
     @configfile = nil_if_none c
   end
+  attr_bang :insecure
 
   define_option "p", :prompt=, "STR",
                               "prompt - see source code for % escapes"
@@ -74,6 +75,9 @@ EOT
   define_option "c", :configfile=, "FILE", ".intarrc",
                                         "config file, NONE means none"
   alias_option  "c", "configfile"
+  define_option "i", :insecure!,
+                       "insecure: don't set $SAFE when reading config"
+  alias_option  "i", "insecure"
 
   define_option "H", :histfile=, "FILE", ".intar_history",
                                        "history file, NONE means none"
@@ -129,7 +133,7 @@ EOT
       return unless File.exists? c
     end
     r = File.read c
-    r.prepend "$SAFE = 1#$/"
+    @insecure or r.prepend "$SAFE = 1#$/"
     Thread.new {
       begin
         eval r, TOPLEVEL_BINDING

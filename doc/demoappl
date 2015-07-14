@@ -21,6 +21,8 @@ The program just prints out its parameters.
 
 EOT
 
+  OPTIONS_ENV = "DEMO_OPTS"
+
   attr_writer :param, :default_param
   attr_bang :switch, :raise, :debug
 
@@ -52,6 +54,8 @@ EOT
   def run
     puts inspect
     raise "stop" if @raise
+    ENV[ OPTIONS_ENV] or
+      puts "Try to set the environment variable #{OPTIONS_ENV}."
     @args.clear
   end
 

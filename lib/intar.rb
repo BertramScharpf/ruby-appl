@@ -204,7 +204,7 @@ class Intar
 
   end
 
-  self.prompt     = "%(32 1)c%i%c:%1c%03n%c%> "
+  self.prompt     = "%(32)c%i%c:%1c%03n%c%> "
   self.show       = 1
   self.colour     = true
   self.histfile   = nil

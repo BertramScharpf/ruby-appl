@@ -5,7 +5,9 @@
 
 class Application
 
-  APPL_VERSION = "1.0.2".freeze
+  APPL_VERSION = "1.1".freeze
+
+  OPTIONS_ENV = nil
 
   STOPOPT = "stop option processing"
   UNKNOWN = "Unknown option"
@@ -15,7 +17,7 @@ class Application
   class Done        < Exception     ; end
 
   def initialize args = nil
-    @args = args||$*
+    @args = args||self.class.cmdline_arguments
     self.class.each_option { |opt,desc,arg,dfl,act|
       begin
         send act, dfl if dfl
@@ -175,6 +177,8 @@ This base class does nothing by default.
       nil
     end
 
+    protected
+
     def find_option_act opt
       self < Application or return
       @options[ opt] || @options[ @aliases[ opt]] ||
@@ -190,17 +194,6 @@ This base class does nothing by default.
       end
     end
 
-    def each_option
-      o = all_options
-      o = o.sort_by { |k,v| k.swapcase } unless HASH_ORDER
-      o.each { |opt,(desc,arg,dfl,act)|
-        case dfl
-          when Symbol then dfl = const_get dfl
-        end
-        yield opt, desc, arg, dfl, act
-      }
-    end
-
     def all_aliases
       if self < Application then
         r = superclass.all_aliases
@@ -208,18 +201,6 @@ This base class does nothing by default.
       else
         {}
       end
-    end
-
-    def option_act args, opt, rest
-      dada = find_option_act opt
-      dada or raise OptionError, "#{self::UNKNOWN}: `#{opt}'."
-      desc, arg, dfl, act = *dada
-      r = [ act]
-      if arg then
-        p = rest.slice! 0, rest.length if rest and not rest.empty?
-        r.push p||args.shift
-      end
-      r
     end
 
     def options_desc &block
@@ -235,6 +216,31 @@ This base class does nothing by default.
         }
       }
       yield "", nil, nil, self::STOPOPT
+    end
+
+    public
+
+    def each_option
+      o = all_options
+      o = o.sort_by { |k,v| k.swapcase } unless HASH_ORDER
+      o.each { |opt,(desc,arg,dfl,act)|
+        case dfl
+          when Symbol then dfl = const_get dfl
+        end
+        yield opt, desc, arg, dfl, act
+      }
+    end
+
+    def option_act args, opt, rest
+      dada = find_option_act opt
+      dada or raise OptionError, "#{self::UNKNOWN}: `#{opt}'."
+      desc, arg, dfl, act = *dada
+      r = [ act]
+      if arg then
+        p = rest.slice! 0, rest.length if rest and not rest.empty?
+        r.push p||args.shift
+      end
+      r
     end
 
     def show_options
@@ -274,6 +280,19 @@ This base class does nothing by default.
         msg = [ msg, extra].join " "
       end
       $stderr.puts msg
+    end
+
+    def cmdline_arguments
+      r = []
+      oe = self::OPTIONS_ENV
+      eo = ENV[ oe] if oe
+      if eo then
+        eo.scan /"((?:\\.|[^"])*")|[^" \t]+/ do
+          r.push $1 ? (eval $1) : $&
+        end
+      end
+      r.concat $*
+      r
     end
 
   end

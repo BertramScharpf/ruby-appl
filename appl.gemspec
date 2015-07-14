@@ -19,7 +19,7 @@ EOT
   s.homepage          = "http://www.bertram-scharpf.de/software/appl"
 
   s.requirements      = "Just Ruby"
-  s.add_dependency      "supplement", ">=1.6"
+  s.add_dependency      "supplement", "~>2"
 
   s.extensions        = %w()
   s.files             = %w(

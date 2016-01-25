@@ -29,14 +29,15 @@ class Application
       opt = $'
       @args.shift
       if opt =~ /\A-/ then
-        break if $'.empty?
+        break if !$' or $'.empty?
         opt = $'
-        if opt =~ /=/ then opt = $` ; @args.unshift $' end
+        if opt =~ /^=/ then opt = $` ; @args.unshift $' end
         act = self.class.option_act @args, opt, nil
         send *act
       else
-        until opt.empty? do
+        until not opt or opt.empty? do
           c = opt.slice! 0, 1
+          if opt =~ /^=/ then opt = nil ; @args.unshift $' end
           act = self.class.option_act @args, c, opt
           send *act
         end

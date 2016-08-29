@@ -62,7 +62,7 @@ class Intar
     def initialize filename
       @filename = filename
       return unless @filename
-      h = "~" unless @filename.starts_with "./"
+      h = "~" unless @filename[ File::SEPARATOR]
       @filename = File.expand_path @filename, h
       File.exists? @filename and File.open @filename do |h|
         c = []

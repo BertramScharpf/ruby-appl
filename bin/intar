@@ -120,27 +120,18 @@ EOT
     end
   end
 
-
   def read_cfg
-    c = @configfile
-    return unless c
-    unless c[ File::SEPARATOR] or (File.exists? c) then
-      c = File.expand_path c, "~"
-      return unless File.exists? c
-    end
-    r = File.read c
-    r.prepend "$SAFE = 1#$/"
-    Thread.new {
-      begin
-        eval r, TOPLEVEL_BINDING
-      rescue Exception
-        $@.pop 2
-        e = $@.shift
-        puts "#{e}: #$! (#{$!.class})"
-        $@.each { |l| puts "\t#{l}" }
-        raise "Error in config file #{c}"
-      end
-    }.value
+    return unless @configfile
+    h = "~" unless @configfile[ File::SEPARATOR]
+    c = File.expand_path @configfile, h
+    return unless File.exists? c
+    load c
+  rescue Exception
+    $@.pop 2
+    e = $@.shift
+    puts "#{e}: #$! (#{$!.class})"
+    $@.each { |l| puts "\t#{l}" }
+    raise "Error in config file #{c}"
   end
 
   def nil_if_none var

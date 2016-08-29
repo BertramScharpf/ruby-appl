@@ -13,12 +13,11 @@ Gem::Specification.new do |s|
 A base class for command line applications doing options parsing
 and generating exit codes.
 EOT
-  s.license           = "BSD"
+  s.license           = "BSD-2-Clause"
   s.authors           = [ "Bertram Scharpf"]
   s.email             = "<software@bertram-scharpf.de>"
   s.homepage          = "http://www.bertram-scharpf.de/software/appl"
 
-  s.requirements      = "Just Ruby"
   s.add_dependency      "supplement", "~>2"
 
   s.extensions        = %w()

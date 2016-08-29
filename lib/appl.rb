@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.2".freeze
+  APPL_VERSION = "1.3".freeze
 
   OPTIONS_ENV = nil
 

@@ -241,13 +241,13 @@ class Intar
   def cur_prompt
     t = Time.now
     self.class.prompt.gsub /%(?:
-                               \(([^\)]*)\)
+                               \(([^\)]+)?\)
                              |
                                ([+-]?[0-9]+(?:\.[0-9]+)?)
                              )?(.)/nx do
       case $3
         when "s" then @obj.to_s
-        when "i" then $1.notempty? ? (@obj.send $1) : @obj.inspect
+        when "i" then $1 ? (@obj.send $1) : @obj.inspect
         when "n" then "%#$2d" % @n
         when "t" then t.strftime $1||"%X"
         when "u" then Etc.getpwuid.name

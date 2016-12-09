@@ -26,8 +26,6 @@ This should be self-explaining:
 
       DESCRIPTION = <<EOT
     This is an example how to define an Application subclass.
-    The program just prints out its parameters.
-
     EOT
 
       attr_writer :param, :default_param

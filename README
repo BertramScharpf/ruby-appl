@@ -1,0 +1,66 @@
+= ruby-appl 1.3  --  Easy option parsing
+
+A base class for command line applications doing options parsing
+and generating exit codes.
+
+
+== Contents
+
+* class Application
+
+
+== Example
+
+This should be self-explaining:
+
+    require "appl"
+
+    class MyAppl < Application
+
+      NAME      = "myappl"
+      VERSION   = "1.0"
+      SUMMARY   = "Just test the Application class"
+      COPYRIGHT = "(C) 2011 Bertram Scharpf"
+      LICENSE   = "For internal use only"
+      AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
+
+      DESCRIPTION = <<EOT
+    This is an example how to define an Application subclass.
+    The program just prints out its parameters.
+
+    EOT
+
+      attr_writer :param, :default_param
+      attr_bang :switch, :debug
+
+      define_option "s", :switch!,                       "some switch"
+      alias_option  "s", "switch"
+
+      define_option "p", :param=, "PARAM",            "some parameter"
+      alias_option  "p", "param"
+
+      define_option "d", :default_param=, "PARAM:dddd",
+                                 "some parameter with a default value"
+      alias_option  "d", "default-param"
+
+      define_option "g", :debug!, "lots of ugly debugging information"
+      alias_option  "g", "debug"
+
+      define_option "h", :help,               "show this options list"
+      alias_option  "h", "help"
+      define_option "V", :version,          "show version information"
+      alias_option  "V", "version"
+
+      def run
+        do_something_with @args
+      end
+
+    end
+
+    MyAppl.run
+
+
+== TODO
+
+Write some more documentation.
+

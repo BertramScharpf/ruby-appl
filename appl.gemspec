@@ -18,7 +18,7 @@ EOT
   s.email             = "<software@bertram-scharpf.de>"
   s.homepage          = "http://www.bertram-scharpf.de/software/appl"
 
-  s.add_dependency      "supplement", "~>2"
+  s.requirements      = "Just Ruby"
 
   s.extensions        = %w()
   s.files             = %w(

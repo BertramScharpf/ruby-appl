@@ -47,7 +47,7 @@ require "supplement/terminal"
 
 
 class Object
-  def empty_binding
+  def intar_binding
     binding
   end
 end
@@ -354,10 +354,10 @@ class Intar
   class CmdFailed < Exception ; end
 
   def run *precmds
-    bind = @obj.empty_binding
+    bind = @obj.intar_binding
     precmds.each { |l| eval l, bind }
     oldset = eval OLDSET, bind
-    @cl = eval "caller.length", bind
+    @cl = (eval "caller.length", bind) + 2  # 2 = eval + run()
     while l = readline do
       re_sh_pref = /\A#{Regexp.quote self.class.sh_pref}/
       re_pi_suff = /#{Regexp.quote self.class.pi_suff}\z/
@@ -432,7 +432,6 @@ class Intar
     bt = $@.dup
     if bt.length > @cl then
       bt.pop @cl
-      bt.push bt.pop[ /(.*:\d+):.*/, 1]
     end
     puts bt
   end

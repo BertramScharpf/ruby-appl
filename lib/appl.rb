@@ -91,8 +91,6 @@ This base class does nothing by default.
     $!.to_i rescue 1
   end
 
-  HASH_ORDER = RUBY_VERSION >= "1.9"
-
   class <<self
 
     def run args = nil
@@ -209,7 +207,6 @@ This base class does nothing by default.
       all_aliases.each { |k,v|
         a[ v].push k
       }
-      a.values.each { |v| v.sort! } unless HASH_ORDER
       each_option { |opt,desc,arg,dfl,|
         yield opt, arg, dfl, desc
         a[ opt].each { |l|
@@ -223,7 +220,6 @@ This base class does nothing by default.
 
     def each_option
       o = all_options
-      o = o.sort_by { |k,v| k.swapcase } unless HASH_ORDER
       o.each { |opt,(desc,arg,dfl,act)|
         case dfl
           when Symbol then dfl = const_get dfl

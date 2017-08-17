@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.4".freeze
+  APPL_VERSION = "1.4.1".freeze
 
   OPTIONS_ENV = nil
 
@@ -289,6 +289,7 @@ This base class does nothing by default.
         end
       end
       r.concat $*
+      $*.clear
       r
     end
 

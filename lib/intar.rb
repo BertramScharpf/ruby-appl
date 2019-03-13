@@ -284,23 +284,25 @@ class Intar
   def readline
     r, @previous = @previous, nil
     r or @n += 1
-    cp = cur_prompt r
     begin
-      l = Readline.readline cp
-    rescue Interrupt
-      puts "^C  --  #{$!.inspect}"
-      retry
-    end
-    return if l.nil?
-    if r then
-      r << $/ << l
-    else
-      r = l
-    end
-    self.class.hist_add l
-    cp.strip!
-    cp.gsub! /\e\[[0-9]*(;[0-9]*)*m/, ""
-    @file = "#{self.class}/#{cp}"
+      cp = cur_prompt r
+      begin
+        l = Readline.readline cp
+      rescue Interrupt
+        puts "^C  --  #{$!.inspect}"
+        retry
+      end
+      return if l.nil?
+      if r then
+        r << $/ << l
+      else
+        r = l unless l.empty?
+      end
+      self.class.hist_add l
+      cp.strip!
+      cp.gsub! /\e\[[0-9]*(;[0-9]*)*m/, ""
+      @file = "#{self.class}/#{cp}"
+    end until r
     r
   end
 
@@ -376,8 +378,8 @@ class Intar
       rescue LoadError
         oldset.call $!, @n
         show_exception
-      rescue ScriptError
-        if l[ $/] then
+      rescue SyntaxError
+        if l.end_with? $/ then
           switchcolour 33
           puts $!
         else

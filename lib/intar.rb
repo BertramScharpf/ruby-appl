@@ -238,7 +238,7 @@ class Intar
   autoload :Etc,    "etc"
   autoload :Socket, "socket"
 
-  def cur_prompt
+  def cur_prompt prev
     t = Time.now
     self.class.prompt.gsub /%(?:
                                \(([^\)]+)?\)
@@ -255,7 +255,7 @@ class Intar
         when "w" then cwd_short
         when "W" then File.basename cwd_short
         when "c" then (colour *($1 || $2 || "").split.map { |x| x.to_i }).to_s
-        when ">" then Process.uid == 0 ? "#" : ">"
+        when ">" then prev ? "." : Process.uid == 0 ? "#" : ">"
         when "%" then $3
         else          $&
       end
@@ -284,29 +284,23 @@ class Intar
   def readline
     r, @previous = @previous, nil
     r or @n += 1
-    cp = cur_prompt
-    loop do
-      begin
-        l = Readline.readline r ? "" : cp
-      rescue Interrupt
-        puts "^C  --  #{$!.inspect}"
-        retry
-      end
-      if r then
-        break if l.nil?
-        r << $/ << l
-        break if l.empty?
-      else
-        return if l.nil?
-        next unless l =~ /\S/
-        r = l
-        break unless l =~ /\\+\z/ and $&.length % 2 != 0
-      end
+    cp = cur_prompt r
+    begin
+      l = Readline.readline cp
+    rescue Interrupt
+      puts "^C  --  #{$!.inspect}"
+      retry
     end
+    return if l.nil?
+    if r then
+      r << $/ << l
+    else
+      r = l
+    end
+    self.class.hist_add l
     cp.strip!
     cp.gsub! /\e\[[0-9]*(;[0-9]*)*m/, ""
     @file = "#{self.class}/#{cp}"
-    self.class.hist_add r
     r
   end
 

@@ -264,6 +264,7 @@ This base class does nothing by default.
         h = a.length == 1 ? "Author" : "Authors"
         puts "#{h}: #{j}"
       end
+      puts "Ruby version: #{RUBY_VERSION}"
     end
 
     def show_message msg, extra = nil

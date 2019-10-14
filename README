@@ -1,4 +1,4 @@
-= ruby-appl 1.5.1  --  Easy option parsing
+= ruby-appl 1.6  --  Easy option parsing
 
 A base class for command line applications doing options parsing
 and generating exit codes.

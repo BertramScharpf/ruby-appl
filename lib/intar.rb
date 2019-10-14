@@ -128,7 +128,7 @@ class Intar
 
   class <<self
 
-    attr_accessor :prompt, :show, :colour
+    attr_accessor :prompt, :show, :shownil, :colour
 
     attr_reader :histfile
     def histfile= hf
@@ -158,6 +158,7 @@ class Intar
         s = superclass
         @prompt     = s.prompt
         @show       = s.show
+        @shownil    = s.shownil
         @colour     = s.colour
         @histfile   = s.histfile
         @histmax    = s.histmax
@@ -206,6 +207,7 @@ class Intar
 
   self.prompt     = "%(32)c%i%c:%1c%03n%c%> "
   self.show       = 1
+  self.shownil    = false
   self.colour     = true
   self.histfile   = nil
   self.histmax    = 500
@@ -312,19 +314,18 @@ class Intar
   # :startdoc:
 
   def display r
-    return if r.nil?
+    return if r.nil? and not self.class.shownil
     show = (self.class.show or return)
-    i = r.inspect
+    i = ARROW.dup
+    i << r.inspect
     if show > 0 then
       siz, = $stdout.winsize
       siz *= show
-      siz -= ARROW.length
       if i.length > siz then
         i.cut! siz-ELLIPSIS.length
         i << ELLIPSIS
       end
     end
-    i.prepend ARROW
     puts i
   end
 

@@ -15,11 +15,10 @@ class DemoAppl < Application
   LICENSE   = "For internal use only"
   AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 
-  DESCRIPTION = <<EOT
-This is an example how to define an Application subclass.
-The program just prints out its parameters.
-
-EOT
+  DESCRIPTION = <<~EOT
+    This is an example how to define an Application subclass.
+    The program just prints out its parameters.
+  EOT
 
   OPTIONS_ENV = "DEMO_OPTS"
 

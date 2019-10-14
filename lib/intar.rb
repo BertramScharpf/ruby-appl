@@ -223,7 +223,7 @@ class Intar
     @n = 0
   end
 
-  OLDSET = <<-EOT
+  OLDSET = <<~EOT
     _, __, ___ = nil, nil, nil
     proc { |r,n|
       Array === __ or __ = []

@@ -24,9 +24,9 @@ This should be self-explaining:
       LICENSE   = "For internal use only"
       AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 
-      DESCRIPTION = <<EOT
-    This is an example how to define an Application subclass.
-    EOT
+      DESCRIPTION = <<~EOT
+        This is an example how to define an Application subclass.
+      EOT
 
       attr_writer :param, :default_param
       attr_bang :switch, :debug

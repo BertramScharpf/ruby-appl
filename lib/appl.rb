@@ -67,8 +67,8 @@ class Application
   VERSION = "0"
   NAME    = "appl"
   SUMMARY = "Dummy application"
-  DESCRIPTION = <<-EOT
-This base class does nothing by default.
+  DESCRIPTION = <<~EOT
+    This base class does nothing by default.
   EOT
 
   def run

@@ -17,16 +17,16 @@ class IntarApp < Application
   LICENSE   = "BSD"
   AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 
-  DESCRIPTION = <<EOT
-Prompt for Ruby statements, evaluate them. This is a replacement
-for "irb". The underlying library may be entered from inside any
-Ruby program.
+  DESCRIPTION = <<~EOT
+    Prompt for Ruby statements, evaluate them. This is a replacement
+    for "irb". The underlying library may be entered from inside any
+    Ruby program.
 
-Example:
+    Example:
 
-  $ intar -p '%(33 1)c%t%c%> '
+      $ intar -p '%(33 1)c%t%c%> '
 
-EOT
+  EOT
 
   def quiet!
     Intar.show = nil

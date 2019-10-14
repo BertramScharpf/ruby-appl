@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.6".freeze
+  APPL_VERSION = "1.6.1".freeze
 
   OPTIONS_ENV = nil
 
@@ -84,7 +84,7 @@ This base class does nothing by default.
   rescue SignalException
     raise if @debug
     self.class.show_message $!.inspect
-    128 + ($!.signo||2)    # Ruby 1.8 returns signo +nil+; assume SIGINT
+    128 + $!.signo
   rescue
     raise if @debug
     self.class.show_message "Error: #$!", "(#{$!.class})"

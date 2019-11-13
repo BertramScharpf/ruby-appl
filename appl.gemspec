@@ -29,7 +29,5 @@ Gem::Specification.new do |s|
   s.executables       = %w(
                           intar
                         )
-
-  s.has_rdoc          = true
 end
 

@@ -6,7 +6,6 @@ require "./lib/appl.rb"
 
 Gem::Specification.new do |s|
   s.name              = "appl"
-  s.rubyforge_project = "NONE"
   s.version           = Application::APPL_VERSION
   s.summary           = "Easy option parsing"
   s.description       = <<~EOT

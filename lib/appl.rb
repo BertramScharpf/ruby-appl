@@ -82,14 +82,6 @@ class Application
       exit e
     end
 
-    def short_version
-      if self::VERSION =~ %r/\s/ then
-        self::VERSION
-      else
-        "#{self::NAME} #{self::VERSION}  --  #{self::SUMMARY}"
-      end
-    end
-
     private
 
     def execute args = nil
@@ -211,7 +203,7 @@ class Application
     end
 
     def help
-      puts short_version
+      puts "#{self::NAME}  --  #{self::SUMMARY}"
       puts
       puts self::DESCRIPTION
       puts
@@ -223,7 +215,7 @@ class Application
     end
 
     def version
-      puts short_version
+      puts "#{self::NAME} #{self::VERSION}  --  #{self::SUMMARY}"
       puts self::COPYRIGHT if const_defined? :COPYRIGHT
       puts "License: #{self::LICENSE}" if const_defined? :LICENSE
       a = []

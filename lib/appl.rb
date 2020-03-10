@@ -119,7 +119,8 @@ class Application
     end
 
     def inherited sub
-      sub.instance_eval { @options, @aliases = {}, {} }
+      o, a = @options.dup.to_h, @aliases.dup.to_h
+      sub.instance_eval { @options, @aliases = o, a }
     end
 
     def attr_bang *syms
@@ -162,16 +163,12 @@ class Application
     end
 
     def delete_option opt
-      self < Application or return
-      superclass.delete_option opt
       @aliases.reject! { |k,v| v == opt }
       @options.delete opt
       nil
     end
 
     def unalias_option opt
-      self < Application or return
-      superclass.unalias_option opt
       @aliases.delete opt
       nil
     end
@@ -179,32 +176,12 @@ class Application
     protected
 
     def find_option_act opt
-      self < Application or return
-      @options[ opt] || @options[ @aliases[ opt]] ||
-        (superclass.find_option_act opt)
-    end
-
-    def all_options
-      if self < Application then
-        r = superclass.all_options
-        r.update @options
-      else
-        {}
-      end
-    end
-
-    def all_aliases
-      if self < Application then
-        r = superclass.all_aliases
-        r.update @aliases
-      else
-        {}
-      end
+      @options[ opt] || @options[ @aliases[ opt]]
     end
 
     def options_desc &block
       a = Hash.new do |h,k| h[ k] = [] end
-      all_aliases.each { |k,v|
+      @aliases.each { |k,v|
         a[ v].push k
       }
       each_option { |opt,desc,arg,dfl,|
@@ -219,8 +196,7 @@ class Application
     public
 
     def each_option
-      o = all_options
-      o.each { |opt,(desc,arg,dfl,act)|
+      @options.each { |opt,(desc,arg,dfl,act)|
         case dfl
           when Symbol then dfl = const_get dfl
         end

@@ -28,33 +28,10 @@ class IntarApp < Application
 
   EOT
 
-  def quiet!
-    Intar.show = nil
-  end
-  def show= s
-    Intar.show = s.to_i
-  end
-  def prompt= p
-    Intar.prompt = p if p
-  end
-  def bw!
-    Intar.colour = false
-  end
-  def catch_exit!
-    Intar.catch_exit = (Intar.catch_exit||0) + 3
-  end
-  def histall!
-    Intar.histhid = false
-  end
-  def histfile= h
-    Intar.histfile = nil_if_none h
-  end
-  def histmax= m
-    Intar.histmax = (Integer m rescue m.to_i)
-  end
-  def configfile= c
-    @configfile = nil_if_none c
-  end
+  attr_writer :show, :prompt, :histmax
+  def histfile=   f ; @histfile   = nil_if_none f ; end
+  def configfile= f ; @configfile = nil_if_none f ; end
+  attr_bang :quiet, :bw, :catch_exit, :histall
 
   define_option "p", :prompt=, "STR",
                               "prompt - see source code for % escapes"
@@ -63,8 +40,8 @@ class IntarApp < Application
   define_option "q", :quiet!,                     "don't show results"
   alias_option  "q", "quiet"
 
-  define_option "S", :show=, "N", 1,  "show result line limit (0=all)"
-  alias_option  "S", "show"
+  define_option "s", :show=, "N",     "show result line limit (0=all)"
+  alias_option  "s", "show"
 
   define_option "r", :require, "FILE",                  "Ruby require"
   alias_option  "r", "require"
@@ -103,6 +80,18 @@ class IntarApp < Application
   def run
     # @debug = true      # Only development.
     read_cfg
+    if @quiet then
+      Intar.show = 0
+    elsif @show then
+      Intar.show = Integer @show
+    end
+    Intar.prompt = @prompt if @prompt
+    Intar.colour = false if @bw
+    Intar.catch_exit = (Intar.catch_exit||0) + 3 if @catch_exit
+    Intar.histhid = false if @histall
+    Intar.histfile = @histfile if @histfile
+    Intar.histmax = Integer @histmax if @histmax
+
     main = eval "self", TOPLEVEL_BINDING
     Intar.open main do |i|
       i.run *(@args.shift @args.length)

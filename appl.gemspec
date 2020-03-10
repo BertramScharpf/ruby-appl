@@ -22,8 +22,10 @@ Gem::Specification.new do |s|
   s.extensions        = %w()
   s.files             = %w(
                           lib/appl.rb
+                          lib/applfan.rb
                           lib/intar.rb
                           doc/demoappl
+                          doc/demofan
                         )
   s.executables       = %w(
                           intar

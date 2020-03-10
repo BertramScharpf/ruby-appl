@@ -94,6 +94,7 @@ class Application
     end
 
     def inherited sub
+      sub.name or return
       o, a = @options.dup.to_h, @aliases.dup.to_h
       sub.instance_eval { @options, @aliases = o, a }
     end

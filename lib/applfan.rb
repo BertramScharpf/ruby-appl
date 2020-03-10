@@ -61,9 +61,10 @@ class ApplicationFan
     c or raise CommandError, NOCOMMAND
     cmd = self.class.find_command c
     cmd or raise CommandError, UNKNWNCMD % c
-    a = @args.slice! 0, @args.length
-    sub = cmd.new a
-    sub.run
+    (cmd.new @args.slice! 0, @args.length).tap { |sub|
+      yield sub if block_given?
+      sub.run
+    }
   end
 
 end

@@ -26,7 +26,7 @@ class ApplicationFan
 
     def help
       super do
-        puts AVAILCMDS
+        puts self::AVAILCMDS
         @commands.each { |c|
           puts "  %-10s  %s" % [ c::NAME, c::SUMMARY]
         }
@@ -58,9 +58,9 @@ class ApplicationFan
 
   def run
     c = @args.shift
-    c or raise CommandError, NOCOMMAND
+    c or raise CommandError, self.class::NOCOMMAND
     cmd = self.class.find_command c
-    cmd or raise CommandError, UNKNWNCMD % c
+    cmd or raise CommandError, self.class::UNKNWNCMD % c
     (cmd.new @args.slice! 0, @args.length).tap { |sub|
       yield sub if block_given?
       sub.run

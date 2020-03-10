@@ -46,30 +46,14 @@ class Application
   end
 
   def help
-    c = self.class
-    puts c.version
-    puts
-    puts c::DESCRIPTION
-    puts
-    c.show_options
-    if block_given? then
-      puts
-      yield
-    end
+    self.class.help
     raise Done
   end
 
   def version
-    self.class.show_version
+    self.class.version
     raise Done
   end
-
-  VERSION = "0"
-  NAME    = "appl"
-  SUMMARY = "Dummy application"
-  DESCRIPTION = <<~EOT
-    This base class does nothing by default.
-  EOT
 
   def run
   end
@@ -98,7 +82,7 @@ class Application
       exit e
     end
 
-    def version
+    def short_version
       if self::VERSION =~ %r/\s/ then
         self::VERSION
       else
@@ -226,8 +210,20 @@ class Application
       end
     end
 
-    def show_version
-      puts version
+    def help
+      puts short_version
+      puts
+      puts self::DESCRIPTION
+      puts
+      show_options
+      if block_given? then
+        puts
+        yield
+      end
+    end
+
+    def version
+      puts short_version
       puts self::COPYRIGHT if const_defined? :COPYRIGHT
       puts "License: #{self::LICENSE}" if const_defined? :LICENSE
       a = []

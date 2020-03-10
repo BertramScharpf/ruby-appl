@@ -10,8 +10,8 @@ class Application
   OPTIONS_ENV = nil
 
   STOPOPT = "stop option processing"
-  UNKNOWN = "Unknown option"
-  UNPROCA = "Warning: unprocessed arguments"
+  UNKNOWN = "Unknown option: `%s'."
+  UNPROCA = "Warning: unprocessed arguments: %s"
 
   class OptionError < StandardError ; end
   class Done        < Exception     ; end
@@ -61,8 +61,7 @@ class Application
   def execute
     run
     if @args.any? then
-      u = @args.join " "
-      puts "#{self.class::UNPROCA}: #{u}"
+      puts self.class::UNPROCA % (@args.join " ")
     end
     0
   rescue SignalException
@@ -182,7 +181,7 @@ class Application
 
     def option_act args, opt, rest
       dada = find_option_act opt
-      dada or raise OptionError, "#{self::UNKNOWN}: `#{opt}'."
+      dada or raise OptionError, self::UNKNOWN % opt
       desc, arg, dfl, act = *dada
       r = [ act]
       if arg then

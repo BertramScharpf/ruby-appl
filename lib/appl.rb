@@ -164,8 +164,8 @@ class Application
     def delete_option opt
       self < Application or return
       superclass.delete_option opt
-      @options.delete opt
       @aliases.reject! { |k,v| v == opt }
+      @options.delete opt
       nil
     end
 

@@ -61,7 +61,7 @@ class Application
   def execute
     run
     if @args.any? then
-      puts self.class::UNPROCA % (@args.join " ")
+      $stderr.puts self.class::UNPROCA % (@args.join " ")
     end
     0
   rescue SignalException

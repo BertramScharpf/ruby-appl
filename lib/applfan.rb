@@ -27,6 +27,7 @@ class ApplicationFan
     def help
       super do
         puts self::AVAILCMDS
+        puts
         @commands.each { |c|
           puts "  %-10s  %s" % [ c::NAME, c::SUMMARY]
         }

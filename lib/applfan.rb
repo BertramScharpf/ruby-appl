@@ -13,8 +13,9 @@ class ApplicationFan
   NOCOMMAND = "No command given. Say -h for a list."
   UNKNWNCMD = "Unknown command: `%s'. Say -h for a list."
 
-  class CommandError < StandardError ; end
+  W_CMDS = 16
 
+  class CommandError < StandardError ; end
 
   class <<self
 
@@ -24,12 +25,13 @@ class ApplicationFan
       @commands.find { |c| c::NAME == name }
     end
 
+
     def help
       super do
         puts self::AVAILCMDS
         puts
         @commands.each { |c|
-          puts "  %-10s  %s" % [ c::NAME, c::SUMMARY]
+          puts "  %-*s  %s" % [ self::W_CMDS, c::NAME, c::SUMMARY]
         }
         if block_given? then
           puts

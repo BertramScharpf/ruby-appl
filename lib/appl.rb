@@ -13,6 +13,9 @@ class Application
   UNKNOWN = "Unknown option: `%s'."
   UNPROCA = "Warning: unprocessed arguments: %s"
 
+  W_OPTS = 10
+  W_ARGS = 16
+
   class OptionError < StandardError ; end
   class Done        < Exception     ; end
 
@@ -198,7 +201,7 @@ class Application
         arg &&= "#{arg}"
         dfl &&= "[#{dfl}]"
         arg << dfl if arg && dfl
-        puts "  %-10s  %-12s  %s" % [ opt, arg, desc]
+        puts "  %-*s  %-*s  %s" % [ self::W_OPTS, opt, self::W_ARGS, arg, desc]
       end
     end
 

@@ -205,8 +205,12 @@ class Application
       end
     end
 
+    def applname
+      self::NAME
+    end
+
     def help
-      puts "#{self::NAME}  --  #{self::SUMMARY}"
+      puts "#{applname}  --  #{self::SUMMARY}"
       puts
       puts self::DESCRIPTION
       puts
@@ -218,7 +222,7 @@ class Application
     end
 
     def version
-      puts "#{self::NAME} #{self::VERSION}  --  #{self::SUMMARY}"
+      puts "#{applname} #{self::VERSION}  --  #{self::SUMMARY}"
       puts self::COPYRIGHT if const_defined? :COPYRIGHT
       puts "License: #{self::LICENSE}" if const_defined? :LICENSE
       a = []

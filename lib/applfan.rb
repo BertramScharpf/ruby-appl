@@ -51,6 +51,9 @@ class ApplicationFan
               sub.commands.push c
               super c
             end
+            define_singleton_method :applname do
+              "#{sub::NAME} #{self::NAME}"
+            end
           end
         )
       end

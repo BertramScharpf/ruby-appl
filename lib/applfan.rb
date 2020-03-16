@@ -28,15 +28,15 @@ class ApplicationFan
 
     def help
       super do
+        if block_given? then
+          yield
+          puts
+        end
         puts self::AVAILCMDS
         puts
         @commands.each { |c|
           puts "  %-*s  %s" % [ self::W_CMDS, c::NAME, c::SUMMARY]
         }
-        if block_given? then
-          puts
-          yield
-        end
       end
     end
 

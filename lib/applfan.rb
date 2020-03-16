@@ -51,8 +51,11 @@ class ApplicationFan
               sub.commands.push c
               super c
             end
+            define_singleton_method :root do
+              sub
+            end
             define_singleton_method :applname do
-              "#{sub::NAME} #{self::NAME}"
+              "#{root::NAME} #{self::NAME}"
             end
           end
         )
@@ -70,6 +73,7 @@ class ApplicationFan
     (cmd.new @args.slice! 0, @args.length).tap { |sub|
       yield sub if block_given?
       sub.run
+      sub.warn_unprocessed
     }
   end
 

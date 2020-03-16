@@ -46,9 +46,9 @@ class DemoAppl < Application
   define_option "V", :version,                    "show version information"
   alias_option  "V", "version"
 
-  UNKNOWN = "Sorry, unknown option"
-  STOPOPT = "no more options"
-  UNPROCA = "Warning: unprocessed arguments left"
+  STOPOPT = "Stop option processing"
+  UNKNOWN = "Not a valid option: `%s'."
+  UNPROCA = "Warning. Unprocessed arguments: %s"
 
   def run
     puts inspect

@@ -61,11 +61,15 @@ class Application
   def run
   end
 
+  def warn_unprocessed
+    if @args.any? then
+      $stderr.puts self.class.root::UNPROCA % (@args.join " ")
+    end
+  end
+
   def execute
     run
-    if @args.any? then
-      $stderr.puts self.class::UNPROCA % (@args.join " ")
-    end
+    warn_unprocessed
     0
   rescue SignalException
     raise if @debug
@@ -169,7 +173,7 @@ class Application
           yield l, nil, nil, nil
         }
       }
-      yield "", nil, nil, self::STOPOPT
+      yield "", nil, nil, root::STOPOPT
     end
 
     public
@@ -185,7 +189,7 @@ class Application
 
     def option_act args, opt, rest
       dada = find_option_act opt
-      dada or raise OptionError, self::UNKNOWN % opt
+      dada or raise OptionError, root::UNKNOWN % opt
       desc, arg, dfl, act = *dada
       r = [ act]
       if arg then
@@ -201,8 +205,12 @@ class Application
         arg &&= "#{arg}"
         dfl &&= "[#{dfl}]"
         arg << dfl if arg && dfl
-        puts "  %-*s  %-*s  %s" % [ self::W_OPTS, opt, self::W_ARGS, arg, desc]
+        puts "  %-*s  %-*s  %s" % [ root::W_OPTS, opt, root::W_ARGS, arg, desc]
       end
+    end
+
+    def root
+      self
     end
 
     def applname

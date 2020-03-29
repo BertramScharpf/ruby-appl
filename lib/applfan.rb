@@ -70,11 +70,9 @@ class ApplicationFan
     c or raise CommandError, self.class::NOCOMMAND
     cmd = self.class.find_command c
     cmd or raise CommandError, self.class::UNKNWNCMD % c
-    (cmd.new @args.slice! 0, @args.length).tap { |sub|
-      yield sub if block_given?
-      sub.run
-      sub.warn_unprocessed
-    }
+    sub = cmd.new @args.slice! 0, @args.length
+    yield sub if block_given?
+    sub.execute
   end
 
 end

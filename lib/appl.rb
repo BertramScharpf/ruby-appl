@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.8".freeze
+  APPL_VERSION = "1.9".freeze
 
   OPTIONS_ENV = nil
 
@@ -68,9 +68,10 @@ class Application
   end
 
   def execute
-    run
+    r = run
+    r = 0 unless Integer === r
     warn_unprocessed
-    0
+    r
   rescue SignalException
     raise if @debug
     self.class.show_message $!.inspect

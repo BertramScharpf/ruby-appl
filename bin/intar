@@ -52,7 +52,7 @@ class IntarApp < Application
                                         "config file, NONE means none"
   alias_option  "c", "configfile"
 
-  define_option "H", :histfile=, "FILE", ".intar_history",
+  define_option "H", :histfile=, "FILE",
                                        "history file, NONE means none"
   alias_option  "H", "histfile"
 

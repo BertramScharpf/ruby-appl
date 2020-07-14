@@ -128,7 +128,7 @@ class Intar
 
   class <<self
 
-    attr_accessor :prompt, :show, :shownil, :colour
+    attr_accessor :prompt, :show, :shownil, :color
 
     attr_reader :histfile
     def histfile= hf
@@ -159,7 +159,7 @@ class Intar
         @prompt     = s.prompt
         @show       = s.show
         @shownil    = s.shownil
-        @colour     = s.colour
+        @color      = s.color
         @histfile   = s.histfile
         @histmax    = s.histmax
         @histhid    = s.histhid
@@ -208,7 +208,7 @@ class Intar
   self.prompt     = "%(32)c%i%c:%1c%03n%c%> "
   self.show       = 1
   self.shownil    = false
-  self.colour     = true
+  self.color      = true
   self.histfile   = nil
   self.histmax    = 500
   self.histhid    = true
@@ -256,7 +256,7 @@ class Intar
         when "h" then Socket.gethostname
         when "w" then cwd_short
         when "W" then File.basename cwd_short
-        when "c" then (colour *($1 || $2 || "").split.map { |x| x.to_i }).to_s
+        when "c" then color *($1 || $2 || "").split.map { |x| x.to_i }
         when ">" then prev ? "." : Process.uid == 0 ? "#" : ">"
         when "%" then $3
         else          $&
@@ -264,16 +264,16 @@ class Intar
     end
   end
 
-  def colour *c
-    if self.class.colour then
+  def color *c
+    if self.class.color then
       s = c.map { |i| "%d" % i }.join ";"
       "\e[#{s}m"
     end
   end
 
-  def switchcolour *c
-    s = colour *c
-    print s if s
+  def switchcolor *c
+    s = color *c
+    print s
   end
 
   def cwd_short
@@ -358,7 +358,7 @@ class Intar
     while l = readline do
       re_sh_pref = /\A#{Regexp.quote self.class.sh_pref}/
       re_pi_suff = /#{Regexp.quote self.class.pi_suff}\z/
-      switchcolour
+      switchcolor
       begin
         pg = l.slice! re_pi_suff
         r = pager pg do
@@ -374,14 +374,14 @@ class Intar
         wait_exit and break
       rescue CmdFailed
         oldset.call $?, @n
-        switchcolour 33
+        switchcolor 33
         puts "Exit code: #{$?.exitstatus}"
       rescue LoadError
         oldset.call $!, @n
         show_exception
       rescue SyntaxError
         if l.end_with? $/ then
-          switchcolour 33
+          switchcolor 33
           puts $!
         else
           @previous = l
@@ -394,7 +394,7 @@ class Intar
         oldset.call $!, @n
         show_exception
       ensure
-	switchcolour
+	switchcolor
       end
     end
     puts
@@ -419,13 +419,13 @@ class Intar
 
   def show_exception
     unless $!.to_s.empty? then
-      switchcolour 31, 1
+      switchcolor 31, 1
       print $!
       print " " unless $!.to_s =~ /\s\z/
     end
-    switchcolour 31, 22
+    switchcolor 31, 22
     puts "(#{$!.class})"
-    switchcolour 33
+    switchcolor 33
     bt = $@.dup
     if bt.length > @cl then
       bt.pop @cl

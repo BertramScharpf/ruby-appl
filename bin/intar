@@ -86,7 +86,7 @@ class IntarApp < Application
       Intar.show = Integer @show
     end
     Intar.prompt = @prompt if @prompt
-    Intar.colour = false if @bw
+    Intar.color = false if @bw
     Intar.catch_exit = (Intar.catch_exit||0) + 3 if @catch_exit
     Intar.histhid = false if @histall
     Intar.histfile = @histfile if @histfile

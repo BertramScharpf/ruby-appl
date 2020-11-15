@@ -8,7 +8,7 @@ require "intar"
 require "appl"
 
 
-class Intar::Application < Application
+class Intar::Appl < Application
 
   NAME      = "intar"
   VERSION   = Intar::VERSION
@@ -78,6 +78,9 @@ class Intar::Application < Application
   @params = {}
   class <<self
     attr_reader :params
+    def set **kwargs
+      @params.update **kwargs
+    end
   end
 
   def run
@@ -138,5 +141,5 @@ class Intar::Application < Application
 
 end
 
-Intar::Application.run
+Intar::Appl.run
 

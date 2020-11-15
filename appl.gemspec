@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
                           lib/appl.rb
                           lib/applfan.rb
                           lib/intar.rb
+                          lib/intar/prompt.rb
+                          lib/intar/redirect.rb
                           doc/demoappl
                           doc/demofan
                         )

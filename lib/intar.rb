@@ -2,6 +2,11 @@
 #  intar.rb  --  Interactive Ruby evaluation
 #
 
+require "supplement"
+require "supplement/terminal"
+require "intar/prompt"
+require "intar/redirect"
+
 
 =begin rdoc
 
@@ -11,39 +16,26 @@ everywhere inside your Ruby program.
 = Example 1
 
   require "intar"
-
-  Intar.prompt = "str(%(length)i):%03n%> "
-  a = "hello"
-  Intar.run a
+  Intar.run
 
 
 = Example 2
 
   require "intar"
+  a = "hello"
+  Intar.run a, prompt: "str(%(length)i):%03n%> "
 
-  class C
+
+= Example 3
+
+  require "intar"
+  Intar.open show: 3, histfile: ".intar_history-example" do |i|
+    i.execute "puts inspect"
+    i.run
   end
 
-  class IntarC < Intar
-    @show     = 3
-    @prompt   = "%(33 1)c%t%c%> "
-    @histfile = ".intarc_history"
-
-    class <<self
-      def open
-        super C.new
-      end
-    end
-  end
-
-  IntarC.open do |ia| ia.run end
 
 =end
-
-
-require "readline"
-require "supplement"
-require "supplement/terminal"
 
 
 class Object
@@ -52,176 +44,99 @@ class Object
   end
 end
 
+
 class Intar
 
-  class History
-
-    IND = "  "
-    IND_RE = /^#{IND}/
-
-    def initialize filename
-      @filename = filename
-      return unless @filename
-      h = "~" unless @filename[ File::SEPARATOR]
-      @filename = File.expand_path @filename, h
-      File.exists? @filename and File.open @filename do |h|
-        c = []
-        h.each { |l|
-          case l
-            when IND_RE then c.push $'
-            else             push c.join.chomp ; c.clear
-          end
-        }
-        push c.join.chomp
-      end
-      @num = Readline::HISTORY.length
-    end
-
-    def finish max
-      return unless @filename
-      @num.times { Readline::HISTORY.shift }
-      File.open @filename, "a" do |h|
-        a = []
-        while (c = Readline::HISTORY.shift) do a.push c end
-        if a.any? then
-          h.puts "# #{Time.now}"
-          a.each { |c|
-            c.each_line { |l| h.puts IND + l }
-            h.puts "-"
-          }
-          i = a.length
-          h.puts "# #{i} #{entry_str i} added"
-        end
-      end
-      n = File.open @filename do |h|
-        h.inject 0 do |i,l| i += 1 if l =~ IND_RE ; i end
-      end
-      i = max - n
-      if i < 0 then
-        f = nil
-        File.open @filename do |h|
-          h.each_line { |l|
-            f.push l if f
-            case l
-              when IND_RE then i += 1
-              else             f ||= [] if i >= 0
-            end
-          }
-        end
-        f and File.open @filename, "w" do |h| h.puts f end
-      end
-    rescue Errno
-      # Forget it if there isn't enough disk space.
-    end
-
-    def push l
-      Readline::HISTORY.push l unless l.empty?
-    end
-
-    private
-
-    def entry_str i
-      i == 1 ? "entry" : "entries"
-    end
-
-  end
+  VERSION = "2.0"
 
   class <<self
 
-    attr_accessor :prompt, :show, :shownil, :color
-
-    attr_reader :histfile
-    def histfile= hf
-      @histfile = hf
-      if @history then
-        @history.finish @histmax
-        @history = History.new @histfile
-      end
+    def open obj = nil, **params
+      i = new obj, **params
+      yield i
     end
 
-    # Maximum number of history entries.
-    attr_accessor :histmax
-
-    # Whether to hide entries starting with whitespace.
-    attr_accessor :histhid
-
-    # Shell prefix and Pipe suffix
-    attr_accessor :sh_pref, :pi_suff
-
-    # Whether <code>Kernel#exit</code> should be caught.
-    attr_accessor :catch_exit
-
-    private
-
-    def inherited sub
-      sub.class_eval {
-        s = superclass
-        @prompt     = s.prompt
-        @show       = s.show
-        @shownil    = s.shownil
-        @color      = s.color
-        @histfile   = s.histfile
-        @histmax    = s.histmax
-        @histhid    = s.histhid
-        @sh_pref    = s.sh_pref
-        @pi_suff    = s.pi_suff
-        @catch_exit = s.catch_exit
-      }
-    end
-
-    def history_file
-      if @history then
-        yield
-      else
-        @history = History.new @histfile
-        begin
-          yield
-        ensure
-          @history.finish @histmax
-          @history = nil
-        end
-      end
-    end
-
-    public
-
-    private :new
-    def open obj
-      history_file do
-        i = new obj
-        yield i
-      end
-    end
-
-    def run obj
-      open obj do |i| i.run end
-    end
-
-    def hist_add l
-      return if @histhid and l == /\A[ \t]+/
-      lst = Readline::HISTORY[-1] if Readline::HISTORY.length > 0
-      @history.push l unless l == lst
+    def run obj = nil, **params
+      open obj, **params do |i| i.run end
     end
 
   end
 
-  self.prompt     = "%(32)c%i%c:%1c%03n%c%> "
-  self.show       = 1
-  self.shownil    = false
-  self.color      = true
-  self.histfile   = nil
-  self.histmax    = 500
-  self.histhid    = true
-  self.sh_pref    = "."
-  self.pi_suff    = " |"
-  self.catch_exit = nil
+
+  DEFAULTS = {
+    prompt:     "%(32)c%i%c:%1c%03n%c%> ",
+    color:      true,
+    show:       1,
+    shownil:    false,
+    pager:      nil,
+    catch_exit: false,
+    histhid:    true,
+    histfile:   nil,
+    histmax:    500,
+  }
+
+  def initialize obj = nil, **params
+    @obj = obj.nil? ? (eval "self", TOPLEVEL_BINDING) : obj
+    @params = DEFAULTS.dup.update params
+    @binding = @obj.intar_binding
+    @n = 0
+    @prompt = Prompt.new
+  end
+
+
+  class Quit   < Exception ; end
+  class Failed < Exception ; end
+
+  def run
+    prompt_load_history
+    oldset = eval OLDSET, @binding
+    while l = readline do
+      begin
+        @redir = find_redirect l
+        r = if l =~ /\A\\(\w+|.)\s*(.*?)\s*\Z/ then
+          m = get_metacommand $1
+          send m.method, (eval_param $2)
+        else
+          begin
+            @redir.redirect_output do eval l, @binding, @file end
+          rescue SyntaxError
+            raise if l.end_with? $/
+            @previous = l
+            next
+          end
+        end
+      rescue Quit
+        break
+      rescue Failed
+        switchcolor 31, 1
+        puts $!
+        switchcolor
+        r = $!
+      rescue Exception
+        raise if SystemExit === $! and not @params[ :catch_exit]
+        show_exception
+        r = $!
+      else
+        display r
+      end
+      oldset.call r, @n
+    end
+    prompt_save_history
+  end
+
+  def execute code
+    eval code, @binding, "#{self.class}/execute"
+  end
+
 
   private
 
-  def initialize obj
-    @obj = obj
-    @n = 0
+  def find_redirect line
+    RedirectPipe.detect line, @params[ :pager]  or
+    RedirectFile.detect line, @params[ :output] or
+    RedirectNone.new
   end
+
 
   OLDSET = <<~EOT
     _, __, ___ = nil, nil, nil
@@ -230,7 +145,6 @@ class Intar
       Hash === ___ or ___ = {}
       unless r.nil? or r.equal? __ or r.equal? ___ then
         _ = r
-        __.delete r rescue nil
         __.unshift r
         ___[ n] = r
       end
@@ -241,17 +155,17 @@ class Intar
   autoload :Socket, "socket"
 
   def cur_prompt prev
-    t = Time.now
-    self.class.prompt.gsub /%(?:
-                               \(([^\)]+)?\)
-                             |
-                               ([+-]?[0-9]+(?:\.[0-9]+)?)
-                             )?(.)/nx do
+    p = @params[ :prompt].to_s
+    p.gsub /%(?:
+               \(([^\)]+)?\)
+             |
+               ([+-]?[0-9]+(?:\.[0-9]+)?)
+             )?(.)/nx do
       case $3
         when "s" then @obj.to_s
         when "i" then $1 ? (@obj.send $1) : @obj.inspect
         when "n" then "%#$2d" % @n
-        when "t" then t.strftime $1||"%X"
+        when "t" then Time.now.strftime $1||"%X"
         when "u" then Etc.getpwuid.name
         when "h" then Socket.gethostname
         when "w" then cwd_short
@@ -265,7 +179,7 @@ class Intar
   end
 
   def color *c
-    if self.class.color then
+    if @params[ :color] then
       s = c.map { |i| "%d" % i }.join ";"
       "\e[#{s}m"
     end
@@ -288,23 +202,19 @@ class Intar
     r or @n += 1
     begin
       cp = cur_prompt r
-      begin
-        l = Readline.readline cp
-      rescue Interrupt
-        puts "^C  --  #{$!.inspect}"
-        retry
-      end
+      l = @prompt.ask cp
       return if l.nil?
+      @prompt.push l unless !r and @params[ :histhid] and l =~ /\A[ \t]+/
       if r then
         r << $/ << l
       else
         r = l unless l.empty?
       end
-      self.class.hist_add l
       cp.strip!
       cp.gsub! /\e\[[0-9]*(;[0-9]*)*m/, ""
       @file = "#{self.class}/#{cp}"
     end until r
+    switchcolor
     r
   end
 
@@ -314,107 +224,21 @@ class Intar
   # :startdoc:
 
   def display r
-    return if r.nil? and not self.class.shownil
-    show = (self.class.show or return)
+    return if r.nil? and not @params[ :shownil]
+    s = @params[ :show]
+    s or return
+    s = s.to_i rescue 0
     i = ARROW.dup
     i << r.inspect
-    if show > 0 then
-      siz, = $stdout.winsize
-      siz *= show
+    if s > 0 then
+      siz, = $stdout.wingeom
+      siz *= s
       if i.length > siz then
         i.cut! siz-ELLIPSIS.length
         i << ELLIPSIS
       end
     end
     puts i
-  end
-
-  def pager doit
-    if doit then
-      IO.popen ENV[ "PAGER"]||"more", "w" do |pg|
-        begin
-          stdout = $stdout.dup
-          $stdout.reopen pg
-          yield
-        ensure
-          $stdout.reopen stdout
-        end
-      end
-    else
-      yield
-    end
-  end
-
-  public
-
-  class Exit      < Exception ; end
-  class CmdFailed < Exception ; end
-
-  def run *precmds
-    bind = @obj.intar_binding
-    precmds.each { |l| eval l, bind }
-    oldset = eval OLDSET, bind
-    @cl = (eval "caller.length", bind) + 2  # 2 = eval + run()
-    while l = readline do
-      re_sh_pref = /\A#{Regexp.quote self.class.sh_pref}/
-      re_pi_suff = /#{Regexp.quote self.class.pi_suff}\z/
-      switchcolor
-      begin
-        pg = l.slice! re_pi_suff
-        r = pager pg do
-          unless l =~ re_sh_pref then
-            eval l, bind, @file
-          else
-            call_system $', bind
-          end
-        end
-        oldset.call r, @n
-        display r
-      rescue Exit
-        wait_exit and break
-      rescue CmdFailed
-        oldset.call $?, @n
-        switchcolor 33
-        puts "Exit code: #{$?.exitstatus}"
-      rescue LoadError
-        oldset.call $!, @n
-        show_exception
-      rescue SyntaxError
-        if l.end_with? $/ then
-          switchcolor 33
-          puts $!
-        else
-          @previous = l
-        end
-      rescue SystemExit
-        break if wait_exit
-        oldset.call $!, @n
-        show_exception
-      rescue Exception
-        oldset.call $!, @n
-        show_exception
-      ensure
-	switchcolor
-      end
-    end
-    puts
-  ensure
-    done
-  end
-
-  protected
-
-  def done
-  end
-
-  private
-
-  def wait_exit
-    c = self.class.catch_exit
-    c and c.times { print "." ; $stdout.flush ; sleep 1 }
-    true
-  rescue Interrupt
-    puts
   end
 
   def show_exception
@@ -426,21 +250,278 @@ class Intar
     switchcolor 31, 22
     puts "(#{$!.class})"
     switchcolor 33
-    bt = $@.dup
-    if bt.length > @cl then
-      bt.pop @cl
-    end
-    puts bt
+    $@.each { |b|
+      r = b.starts_with? __FILE__
+      break if r and (b.rest r) =~ /\A:\d+:/
+      puts b
+    }
+    switchcolor
   end
 
-  def call_system l, bind
-    l.strip!
-    raise Exit if l.empty?
+  def eval_param l
     eot = "EOT0001"
     eot.succ! while l[ eot]
-    l = eval "<<#{eot}\n#{l}\n#{eot}", bind, @file
-    system l or raise CmdFailed
+    l = eval "<<#{eot}\n#{l}\n#{eot}", @binding, @file
+    l.strip!
+    l.notempty?
+  end
+
+  def prompt_load_history
+    @prompt.load_history @params[ :histfile]
+  end
+  def prompt_save_history
+    @prompt.save_history @params[ :histfile], @params[ :histmax]
+  end
+  def prompt_scan_history
+    @prompt.scan_history do |l|
+      next if l =~ /\A\\/
+      yield l
+    end
+  end
+
+
+
+  Metacmds = Struct[ :method, :summary, :description]
+  @metacmds = {}
+  class <<self
+    attr_reader :metacmds
+    private
+    def method_added sym
+      if @mcd then
+        names, summary, desc = *@mcd
+        m = Metacmds[ sym, summary, desc]
+        names.each { |n|
+          @metacmds[ n] = m
+        }
+        @mcd = nil
+      end
+    end
+    def metacmd names, summary, desc
+      @mcd = [ names, summary, desc]
+    end
+  end
+
+  def get_metacommand name
+    self.class.metacmds[ name] or raise Failed, "Unknown Metacommand: #{name}"
+  end
+
+  metacmd %w(? h help), "Help for metacommands", <<~EOT
+    List of Metacommands or help on a specific command, if given.
+  EOT
+  def cmd_help x
+    @redir.redirect_output do
+      if x then
+        mc = get_metacommand x
+        names = cmds_list[ mc]
+        puts "Metacommand: #{names.join ' '}"
+        puts "Summary:     #{mc.summary}"
+        puts "Description:"
+        puts mc.description
+      else
+        l = cmds_list.map { |k,v| [v,k] }
+        puts "Metacommands:"
+        l.each { |names,mc|
+          puts "  %-20s  %s" % [ (names.join " "), mc.summary]
+        }
+      end
+    end
     nil
+  end
+  def cmds_list
+    l = Hash.new { |h,k| h[k] = [] }
+    self.class.metacmds.each_pair { |k,v|
+      l[ v].push k
+    }
+    l
+  end
+
+  metacmd %w(v version), "Version information", <<~EOT
+    Print version number.
+  EOT
+  def cmd_version x
+    @redir.redirect_output do
+      puts "#{self.class} #{VERSION}"
+      VERSION
+    end
+  end
+
+  metacmd %w(q x quit exit), "Quit Intar", <<~EOT
+    Leave Intar.
+  EOT
+  def cmd_quit x
+    raise Quit
+  end
+
+  metacmd %w(cd), "Change directory", <<~EOT
+    Switch to a different working directory.
+  EOT
+  def cmd_cd x
+    if x then
+      Dir.chdir x rescue raise Failed, $!.to_s
+    end
+    @redir.redirect_output do
+      Dir.getwd
+    end
+  end
+
+  metacmd %w($ env), "Set environment variable", <<~EOT
+    Set or display an environment variable.
+  EOT
+  def cmd_env x
+    if x then
+      cmds_split_assign x do |n,v|
+        if v then
+          v =~ /\A"((?:[^\\"]|\\.)*)"\z/ and v = ($1.gsub /\\(.)/, "\\1")
+          ENV[ n] = v
+        else
+          ENV[ n]
+        end
+      end
+    else
+      @redir.redirect_output do
+        ENV.each { |n,v|
+          puts "#{n}=#{v}"
+        }
+        nil
+      end
+    end
+  end
+  def cmds_split_assign x
+    n, v = x.split /\s*=\s*|\s+/, 2
+    yield n, v.notempty?
+  end
+
+  metacmd %w(! sh shell), "Run shell command", <<~EOT
+    Run a shell command or a subshell.
+  EOT
+  def cmd_shell x
+    @redir.redirect_output do
+      system x||ENV[ "SHELL"]||"/bin/sh" or
+        raise Failed, "Exit code: #{$?.exitstatus}"
+    end
+    nil
+  end
+
+  metacmd %w(p param), "Set parameter", <<~EOT
+    Set or display a parameter
+  EOT
+  def cmd_param x
+    if x then
+      cmds_split_assign x do |n,v|
+        if v then
+          @params[ n.to_sym] = eval v, intar_binding
+        else
+          @params[ n.to_sym]
+        end
+      end
+    else
+      @redir.redirect_output do
+        @params.each { |n,v|
+          puts "#{n}=#{v.inspect}"
+        }
+        nil
+      end
+    end
+  end
+
+  metacmd %w(< i input), "Load Ruby file", <<~EOT
+    Load a Ruby file and eval its contents.
+  EOT
+  def cmd_input x
+    l = File.read x rescue raise Failed, $!.to_s
+    @redir.redirect_output do
+      eval l, @binding, x
+    end
+  end
+
+  metacmd %w(> o output), "Output to file", <<~EOT
+    Append output to a file.
+  EOT
+  def cmd_output x
+    if x then
+      File.open x, "w" do end rescue raise Failed, "File error: #$!"
+    end
+    @params[ :output] = x
+  end
+
+  metacmd %w(e edit), "Edit last command", <<~EOT
+    Take last command line from the history and open it in an editor.
+    Then execute the edited line.
+  EOT
+  def cmd_edit x
+    fn = tempname
+    x = Regexp.new x if x
+    p = prompt_scan_history { |l| break l if not x or l =~ x }
+    File.open fn, "w" do |f| f.write p end
+    begin
+      system ENV[ "EDITOR"]||ENV[ "VISUAL"]||"vi", fn or
+        raise Failed, "Executing editor failed: #{$?.exitstatus}"
+      p = File.read fn
+      @redir.redirect_output do eval p, @binding, @file end
+      p.strip!
+      @prompt.push p
+    ensure
+      File.unlink fn
+    end
+  end
+  def tempname
+    t = Time.now.strftime "%Y%m%d-%H%M%S"
+    File.expand_path "intar-#{t}-#$$.rb", ENV[ "TMPDR"]||"/tmp"
+  end
+
+  metacmd %w(^ hist history), "Manage history", <<~EOT
+    l load     Load history
+    s save     Save history
+    /          Search in history
+    [N [M]]    Show last N items (skip M)
+  EOT
+  def cmd_history x
+    case x
+      when "l", "load" then prompt_load_history
+      when "s", "save" then prompt_save_history
+      when %r(\A(\d+)?/\s*)              then search_history $1, $'
+      when %r(\A(\d+)(?:\s+(\d+))?\s*\z) then show_history $1.to_i, $2.to_i
+      when nil                           then show_history 5, 0
+      else                  raise Failed, "Unknown history command: #{x}"
+    end
+  end
+  def search_history num, pat
+    r = Regexp.new pat
+    num ||= 1
+    num = num.to_i.nonzero?
+    extract_from_history { |l|
+      if l =~ r then
+        if num then
+          break unless num > 0
+          num -= 1
+        end
+        next l
+      end
+    }
+  end
+  def show_history n, m
+    i, j = 0, 0
+    extract_from_history { |l|
+      i += 1
+      if i > m then
+        j += 1
+        break if j > n
+        next l
+      end
+    }
+  end
+  def extract_from_history
+    a = []
+    prompt_scan_history do |l|
+      n = yield l
+      a.push n if n
+    end
+  ensure
+    @redir.redirect_output do
+      while (p = a.pop) do
+        puts p
+      end
+    end
   end
 
 end

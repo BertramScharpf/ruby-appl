@@ -8,12 +8,12 @@ require "intar"
 require "appl"
 
 
-class IntarApp < Application
+class Intar::Application < Application
 
   NAME      = "intar"
-  VERSION   = APPL_VERSION
+  VERSION   = Intar::VERSION
   SUMMARY   = "Interactive Ruby"
-  COPYRIGHT = "(C) 2008-2016 Bertram Scharpf <software@bertram-scharpf.de>"
+  COPYRIGHT = "(C) 2008-2020 Bertram Scharpf <software@bertram-scharpf.de>"
   LICENSE   = "BSD"
   AUTHOR    = "Bertram Scharpf <software@bertram-scharpf.de>"
 
@@ -33,72 +33,79 @@ class IntarApp < Application
   def configfile= f ; @configfile = nil_if_none f ; end
   attr_bang :quiet, :bw, :catch_exit, :histall
 
-  define_option "p", :prompt=, "STR",
-                              "prompt - see source code for % escapes"
+  define_option "p", :prompt=, "STR", "prompt - see source code for % escapes"
   alias_option  "p", "prompt"
 
-  define_option "q", :quiet!,                     "don't show results"
+  define_option "q", :quiet!,                             "don't show results"
   alias_option  "q", "quiet"
 
-  define_option "s", :show=, "N",     "show result line limit (0=all)"
+  define_option "s", :show=, "N",             "show result line limit (0=all)"
   alias_option  "s", "show"
 
-  define_option "r", :require, "FILE",                  "Ruby require"
+  define_option "r", :require, "FILE",                          "Ruby require"
   alias_option  "r", "require"
 
-  define_option "bw", :bw!,                            "black & white"
+  define_option "bw", :bw!,                                    "black & white"
 
   define_option "c", :configfile=, "FILE", ".intarrc",
-                                        "config file, NONE means none"
+                                                "config file, NONE means none"
   alias_option  "c", "configfile"
 
-  define_option "H", :histfile=, "FILE",
-                                       "history file, NONE means none"
+  define_option "H", :histfile=, "FILE", ".intar_history",
+                                               "history file, NONE means none"
   alias_option  "H", "histfile"
 
   define_option "m", :histmax=, "NUM",
-                                     "maximum history entries to save"
+                                             "maximum history entries to save"
   alias_option  "m", "histmax"
 
   define_option "A", :histall!,
-                          "pass lines starting with blanks to history"
+                                  "pass lines starting with blanks to history"
   alias_option  "A", "histall"
 
-  define_option "E", :encoding=, "ENC",  "set encoding (like ruby -E)"
+  define_option "E", :encoding=, "ENC",          "set encoding (like ruby -E)"
   alias_option  "E", "encoding"
 
-  define_option "x", :catch_exit!,
-                     "On exit exception: Wait 3 seconds for interrupt"
+  define_option "x", :catch_exit!,        "Don't quit on SystemExit exception"
   alias_option  "x", "catchexit"
   alias_option  "x", "catch-exit"
 
-  define_option "h", :help,                             "show options"
+  define_option "h", :help,                                     "show options"
   alias_option  "h", "help"
-  define_option "V", :version,                          "show version"
+  define_option "V", :version,                                  "show version"
   alias_option  "V", "version"
+
+  @params = {}
+  class <<self
+    attr_reader :params
+  end
 
   def run
     # @debug = true      # Only development.
     read_cfg
-    if @quiet then
-      Intar.show = 0
-    elsif @show then
-      Intar.show = Integer @show
-    end
-    Intar.prompt = @prompt if @prompt
-    Intar.color = false if @bw
-    Intar.catch_exit = (Intar.catch_exit||0) + 3 if @catch_exit
-    Intar.histhid = false if @histall
-    Intar.histfile = @histfile if @histfile
-    Intar.histmax = Integer @histmax if @histmax
-
-    main = eval "self", TOPLEVEL_BINDING
-    Intar.open main do |i|
-      i.run *(@args.shift @args.length)
+    Intar.open **params do |i|
+      i.execute @args.shift while @args.notempty?
+      i.run
     end
   end
 
   private
+
+  def params
+    p = self.class.params
+    if @quiet then
+      p[ :show] = 0
+    elsif @show then
+      p[ :show] = Integer @show
+    end
+    p[ :prompt    ] = @prompt          if @prompt
+    p[ :color     ] = false            if @bw
+    p[ :catch_exit] = true             if @catch_exit
+    p[ :histhid   ] = false            if @histall
+    p[ :histfile  ] = @histfile        if @histfile
+    p[ :histmax   ] = Integer @histmax if @histmax
+    p
+  end
 
   def encoding= ei
     e, i = ei.split ":"
@@ -111,8 +118,7 @@ class IntarApp < Application
 
   def read_cfg
     return unless @configfile
-    h = "~" unless @configfile[ File::SEPARATOR]
-    c = File.expand_path @configfile, h
+    c = File.expand_path @configfile, "~"
     return unless File.exists? c
     load c
   rescue Exception
@@ -132,5 +138,5 @@ class IntarApp < Application
 
 end
 
-IntarApp.run
+Intar::Application.run
 

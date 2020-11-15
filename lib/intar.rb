@@ -379,8 +379,8 @@ class Intar
       end
     else
       @redir.redirect_output do
-        ENV.each { |n,v|
-          puts "#{n}=#{v}"
+        ENV.keys.sort.each { |n|
+          puts "#{n}=#{ENV[ n]}"
         }
         nil
       end

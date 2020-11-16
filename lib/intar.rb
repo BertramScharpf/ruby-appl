@@ -409,18 +409,28 @@ class Intar
     if x then
       cmds_split_assign x do |n,v|
         if v then
-          @params[ n.to_sym] = eval v, intar_binding
+          @params[ n.to_sym] = parse_param v
         else
           @params[ n.to_sym]
         end
       end
     else
       @redir.redirect_output do
-        @params.each { |n,v|
-          puts "#{n}=#{v.inspect}"
+        @params.keys.sort.each { |n|
+          puts "#{n}=#{@params[n].inspect}"
         }
         nil
       end
+    end
+  end
+  def parse_param v
+    case v
+      when /\At(?:rue)?\z/i,  /\Ayes\z/i, /\Aon\z/i  then true
+      when /\Af(?:alse)?\z/i, /\Ano\z/i,  /\Aoff\z/i then false
+      when /\A(?:nil|none|-)\z/i                     then nil
+      when /\A(?:[+-])?\d+\z/i                       then $&.to_i
+      when /\A"((?:[^\\"]|\\.)*)"\z/                 then $1.gsub /\\(.)/, "\\1"
+      else                                                v
     end
   end
 

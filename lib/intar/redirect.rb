@@ -3,7 +3,6 @@
 #
 
 require "supplement"
-require "readline"
 
 
 class Intar
@@ -40,19 +39,19 @@ class Intar
       @pager = pager||ENV[ "PAGER"]||"more"
     end
     def outfile
-      IO.popen @pager, "w" rescue raise Failed, "Pipe error: #$!"
+      IO.popen @pager.to_s, "w" rescue raise Failed, "Pipe error: #$!"
     end
   end
 
   class RedirectFile < Redirect
     class <<self
       def detect line, outfile
-        if line.slice! /\s+>(>)?(\S*|"((?:[^\\"]|\\.)*)")\z/ then
+        if line.slice! /\s+>(>)?(\S+|"((?:[^\\"]|\\.)*)")\z/ then
           p = $3 ? ($3.gsub /\\(.)/, "\\1") : $2
           append = true if $1
           new p, append
         elsif outfile then
-          new outfile, true
+          new outfile.to_s, true
         end
       end
     end

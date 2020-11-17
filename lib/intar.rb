@@ -356,12 +356,27 @@ class Intar
     Switch to a different working directory.
   EOT
   def cmd_cd x
+    @wds ||= []
+    y = Dir.getwd
+    case x
+      when "-"       then x = @wds.pop                ; y = nil if x
+      when /\A\d+\z/ then x = @wds.delete_at -$&.to_i
+    end
     if x then
+      x = File.expand_path x
       Dir.chdir x rescue raise Failed, $!.to_s
+      @wds.push y if y
+      y = Dir.getwd
+      @wds.delete y
     end
     @redir.redirect_output do
-      Dir.getwd
+      i = @wds.length
+      @wds.each { |d|
+        puts "%2d  %s" % [ i, d]
+        i -= 1
+      }
     end
+    y
   end
 
   metacmd %w($ env), "Set environment variable", <<~EOT

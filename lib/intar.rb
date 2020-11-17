@@ -358,9 +358,13 @@ class Intar
   def cmd_cd x
     @wds ||= []
     y = Dir.getwd
-    case x
-      when "-"       then x = @wds.pop                ; y = nil if x
-      when /\A\d+\z/ then x = @wds.delete_at -$&.to_i
+    if x =~ /\A([%=-])?(\d+)?\z/ then
+      x = $2 ? (@wds.delete_at -$2.to_i) : @wds.pop
+      x or raise Failed, ($2 ? "No directory ##$2." : "No last directory.")
+      case $1
+        when "-" then x = nil
+        when "=" then y = nil
+      end
     end
     if x then
       x = File.expand_path x

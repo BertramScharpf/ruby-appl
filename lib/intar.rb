@@ -354,6 +354,13 @@ class Intar
 
   metacmd %w(cd), "Change directory", <<~EOT
     Switch to a different working directory.
+    Former directories will be kept in a stack.
+
+      %[N]    exchange with stack item #N
+      =[N]    drop and set to stack item #N
+      -[N]    drop stack item #N
+
+    Default N is 1.
   EOT
   def cmd_cd x
     @wds ||= []

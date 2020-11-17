@@ -464,6 +464,7 @@ class Intar
     Load a Ruby file and eval its contents.
   EOT
   def cmd_input x
+    x or raise Failed, "No input file given."
     l = File.read x rescue raise Failed, $!.to_s
     @redir.redirect_output do
       eval l, @binding, x
@@ -493,9 +494,9 @@ class Intar
       system ENV[ "EDITOR"]||ENV[ "VISUAL"]||"vi", fn or
         raise Failed, "Executing editor failed: #{$?.exitstatus}"
       p = File.read fn
-      @redir.redirect_output do eval p, @binding, @file end
       p.strip!
       @prompt.push p
+      @redir.redirect_output do eval p, @binding, @file end
     ensure
       File.unlink fn
     end

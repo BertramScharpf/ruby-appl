@@ -23,14 +23,10 @@ Gem::Specification.new do |s|
   s.files             = %w(
                           lib/appl.rb
                           lib/applfan.rb
-                          lib/intar.rb
-                          lib/intar/prompt.rb
-                          lib/intar/redirect.rb
                           doc/demoappl
                           doc/demofan
                         )
   s.executables       = %w(
-                          intar
                         )
 end
 

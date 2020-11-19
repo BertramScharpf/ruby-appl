@@ -1,12 +1,17 @@
-= ruby-appl 1.7  --  Easy option parsing
+= ruby-appl  --  Easy option parsing
+
+
+== About
 
 A base class for command line applications doing options parsing
 and generating exit codes.
 
 
+
 == Contents
 
 * class Application
+
 
 
 == Example
@@ -56,6 +61,13 @@ This should be self-explaining:
     end
 
     MyAppl.run
+
+
+
+== Author
+
+Bertram Scharpf <software@bertram-scharpf.de>
+
 
 
 == TODO

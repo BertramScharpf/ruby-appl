@@ -2,7 +2,7 @@
 #  appl.gemspec  --  Appl Gem specification
 #
 
-require "./lib/appl.rb"
+require "./lib/appl"
 
 Gem::Specification.new do |s|
   s.name              = "appl"

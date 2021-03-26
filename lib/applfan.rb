@@ -5,9 +5,7 @@
 require "appl"
 
 
-ApplicationFan = Class.new Application
-
-class ApplicationFan
+class ApplicationFan < Application
 
   AVAILCMDS = "Available commands (say -h after one for help)"
   NOCOMMAND = "No command given. Say -h for a list."
@@ -22,7 +20,7 @@ class ApplicationFan
     attr_accessor :commands
 
     def find_command name
-      @commands.find { |c| c::NAME == name }
+      @commands.find { |c| c::NAME == name or c::ALIASES.include? name }
     end
 
 
@@ -35,7 +33,7 @@ class ApplicationFan
         puts self::AVAILCMDS
         puts
         @commands.each { |c|
-          puts "  %-*s  %s" % [ self::W_CMDS, c::NAME, c::SUMMARY]
+          puts "  %-*s  %s" % [ self::W_CMDS, c.all_names, c::SUMMARY]
         }
       end
     end
@@ -52,10 +50,7 @@ class ApplicationFan
               super c
             end
             define_singleton_method :root do
-              sub
-            end
-            define_singleton_method :applname do
-              "#{root::NAME} #{self::NAME}"
+              sub.root
             end
           end
         )
@@ -70,7 +65,7 @@ class ApplicationFan
     c or raise CommandError, self.class::NOCOMMAND
     cmd = self.class.find_command c
     cmd or raise CommandError, self.class::UNKNWNCMD % c
-    sub = cmd.new @args.slice! 0, @args.length
+    sub = cmd.new c, (@args.slice! 0, @args.length)
     yield sub if block_given?
     sub.execute
   end

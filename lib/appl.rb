@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.12".freeze
+  APPL_VERSION = "1.13".freeze
 
   OPTIONS_ENV = nil
 
@@ -13,14 +13,16 @@ class Application
   UNKNOWN = "Unknown option: `%s'."
   UNPROCA = "Warning: unprocessed arguments: %s"
 
+  ALIASES = [].freeze
+
   W_OPTS = 10
   W_ARGS = 16
 
   class OptionError < StandardError ; end
   class Done        < Exception     ; end
 
-  def initialize args = nil
-    @args = args||self.class.cmdline_arguments
+  def initialize name = nil, args = nil
+    @name, @args = name, args
     self.class.each_option { |opt,desc,arg,dfl,act|
       begin
         send act, dfl if dfl
@@ -92,7 +94,8 @@ class Application
     private
 
     def execute args = nil
-      i = new args
+      n = File.basename $0
+      i = new n, args||cmdline_arguments
       i.execute
     rescue Done
       0
@@ -214,12 +217,19 @@ class Application
       self
     end
 
-    def applname
-      self::NAME
+    def all_names
+      [ self::NAME, *self::ALIASES].join "|"
     end
 
     def help
-      puts "#{applname}  --  #{self::SUMMARY}"
+      n = []
+      s = self
+      begin
+        l = s.all_names
+        n.unshift l
+        s = s.root
+      end while s != root
+      puts "#{n.join ' '}  --  #{self::SUMMARY}"
       puts
       puts self::DESCRIPTION
       puts
@@ -231,7 +241,7 @@ class Application
     end
 
     def version
-      puts "#{applname} #{self::VERSION}  --  #{self::SUMMARY}"
+      puts "#{self::NAME} #{self::VERSION}  --  #{self::SUMMARY}"
       puts self::COPYRIGHT if const_defined? :COPYRIGHT
       puts "License: #{self::LICENSE}" if const_defined? :LICENSE
       a = []

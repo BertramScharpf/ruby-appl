@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.13".freeze
+  APPL_VERSION = "1.14".freeze
 
   OPTIONS_ENV = nil
 
@@ -221,17 +221,28 @@ class Application
       [ self::NAME, *self::ALIASES].join "|"
     end
 
-    def help
+    def full_name
       n = []
       s = self
-      begin
+      loop do
         l = s.all_names
         n.unshift l
+        break if s == root
         s = s.root
-      end while s != root
-      puts "#{n.join ' '}  --  #{self::SUMMARY}"
+      end
+      n.join ' '
+    end
+
+    def help
+      fn = full_name
+      puts "#{fn}  --  #{self::SUMMARY}"
       puts
-      puts self::DESCRIPTION
+      d = self::DESCRIPTION.gsub /#(\w+?)?#/ do
+        case $1
+          when "NAME" then fn
+        end
+      end
+      puts d
       puts
       show_options
       if block_given? then

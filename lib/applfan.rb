@@ -50,7 +50,7 @@ class ApplicationFan < Application
               super c
             end
             define_singleton_method :root do
-              sub.root
+              sub
             end
           end
         )

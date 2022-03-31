@@ -5,7 +5,7 @@
 
 class Application
 
-  APPL_VERSION = "1.14".freeze
+  APPL_VERSION = "1.15".freeze
 
   OPTIONS_ENV = nil
 
@@ -209,7 +209,9 @@ class Application
         arg &&= "#{arg}"
         dfl &&= "[#{dfl}]"
         arg << dfl if arg && dfl
-        puts "  %-*s  %-*s  %s" % [ root::W_OPTS, opt, root::W_ARGS, arg, desc]
+        l = "  %-*s  %-*s  %s" % [ root::W_OPTS, opt, root::W_ARGS, arg, desc]
+        l.rstrip!
+        puts l
       end
     end
 

@@ -71,9 +71,11 @@ class Application
 
   def execute
     r = run
-    r = 0 unless Integer === r
     warn_unprocessed
-    r
+    case r
+      when Integer then r & 0xff
+      else              0
+    end
   rescue SignalException
     raise if @debug
     self.class.show_message $!.inspect

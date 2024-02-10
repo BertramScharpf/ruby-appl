@@ -88,6 +88,10 @@ class Application
 
   class <<self
 
+    def is_cmd?
+      const_defined? :NAME
+    end
+
     def run args = nil
       e = execute args
       exit e

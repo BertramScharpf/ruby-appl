@@ -20,7 +20,10 @@ class ApplicationFan < Application
     attr_accessor :commands
 
     def find_command name
-      @commands.find { |c| c::NAME == name or c::ALIASES.include? name }
+      @commands.find { |c|
+        next unless c.is_cmd?
+        c::NAME == name or c::ALIASES.include? name
+      }
     end
 
 
@@ -33,6 +36,7 @@ class ApplicationFan < Application
         puts self::AVAILCMDS
         puts
         @commands.each { |c|
+          next unless c.is_cmd?
           puts "  %-*s  %s" % [ self::W_CMDS, c.all_names, c::SUMMARY]
         }
       end

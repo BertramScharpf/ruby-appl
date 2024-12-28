@@ -25,7 +25,13 @@ class Application
     @name, @args = name, args
     self.class.each_option { |opt,desc,arg,dfl,act|
       begin
-        send act, dfl if dfl
+        if dfl then
+          if arg then
+            send act, dfl
+          else
+            send act
+          end
+        end
       rescue NoMethodError
         raise OptionError, "Option action `#{act}' is not defined."
       end
@@ -133,7 +139,9 @@ class Application
       desc = param.pop
       arg = param.shift
       if arg then
-        if param.empty? then
+        if arg == true then
+          arg, dfl = nil, true
+        elsif param.empty? then
           arg, dfl = arg.split /:/, 2
           if dfl =~ /\A:/ then
             dfl = $'.to_sym
@@ -212,9 +220,8 @@ class Application
     def show_options
       options_desc do |opt,arg,dfl,desc|
         opt = opt.length == 1 ? "-#{opt}" : "--#{opt}"
-        arg &&= "#{arg}"
-        dfl &&= "[#{dfl}]"
-        arg << dfl if arg && dfl
+        arg = "#{arg}"
+        arg << "[#{dfl}]" if dfl
         l = "  %-*s  %-*s  %s" % [ root::W_OPTS, opt, root::W_ARGS, arg, desc]
         l.rstrip!
         puts l
